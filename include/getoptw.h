@@ -17,13 +17,14 @@ namespace __tools {
 				tmp.emplace("#", el);
 				continue;
 			}
-			// if we here then it's key
-			if (i == argc - 1 || __tools::starts_with(argv[i + 1], "-")) {
-				tmp.emplace(el, "");
-				continue;
+			std::string value = "";
+			for (size_t j = i + 1; j < argc && not __tools::starts_with(argv[j], "-"); j++) {
+				if (!value.empty())
+					value += " ";
+				value += argv[j];
+				i = j;
 			}
-			tmp.emplace(el, argv[i + 1]);
-			i++; // skip the next because it has already been used
+			tmp.emplace(el, value);
 		}
 		std::swap(umap, tmp);
 	}
