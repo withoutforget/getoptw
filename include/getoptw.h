@@ -5,26 +5,35 @@
 #include <unordered_map>
 #include <utility>
 
+// disable warning comparing signed and unsigned types
+#pragma warning (disable : 4018)
+
+
 namespace __tools {
 	bool starts_with(const std::string& str, const char* substr) {
 		return str.rfind(substr, 0) == 0;
 	}
 	void args_to_umap(std::unordered_map<std::string, std::string>& umap, int argc, char** argv) {
 		std::unordered_map<std::string, std::string> tmp;
+		std::string key{};
+		std::string value{};
 		for (size_t i = 1; i < argc; i++) {
-			auto el = argv[i];
-			if (not __tools::starts_with(el, "-")) {
-				tmp.emplace("#", el);
-				continue;
-			}
-			std::string value = "";
-			for (size_t j = i + 1; j < argc && not __tools::starts_with(argv[j], "-"); j++) {
+			key = "#";
+			value = "";
+
+			if (starts_with(argv[i], "-"))
+				key = argv[i];
+			else
+				value += argv[i];
+
+			for (i++; i < argc && not starts_with(argv[i], "-"); i++) {
 				if (!value.empty())
 					value += " ";
-				value += argv[j];
-				i = j;
+				value += argv[i];
 			}
-			tmp.emplace(el, value);
+			i--;
+
+			tmp.emplace(key, value);
 		}
 		std::swap(umap, tmp);
 	}
