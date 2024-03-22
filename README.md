@@ -24,3 +24,17 @@ hello
 hello world
 --param2=bye world
 ```
+## Docs
+```cpp
+class args {
+public:
+	args();
+	args(int argc, char** argv);	
+	void push(int argc, char** argv); // add new args
+	
+	const char* operator[](const std::string& key) const; // search value by key
+	
+	auto begin() const;
+	auto end() const;
+};
+```
