@@ -5,8 +5,33 @@
 #include <unordered_map>
 #include <utility>
 
-// disable warning comparing signed and unsigned types
-#pragma warning (disable : 4018)
+#if defined(_MSC_VER)
+#define __cplusplus_v _MSVC_LANG
+#else
+#define __cplusplus_v __cplusplus
+#endif
+
+namespace __tools {
+#if __cplusplus_v < 202002L
+template<class T, class U>
+bool cmp_less(T t, U u) noexcept
+{
+    if constexpr (std::is_signed<T>::value == std::is_signed<U>::value)
+        return t < u;
+    else if constexpr (std::is_signed<T>::value)
+        return t < 0 || std::make_unsigned_t<T>(t) < u;
+    else
+        return u >= 0 && t < std::make_unsigned_t<U>(u);
+}
+#else
+template<class T, class U>
+bool cmp_less(T t, U u) noexcept
+{
+	return std::cmp_less<T, U>(t, u);
+}
+#endif
+
+}
 
 
 namespace __tools {
@@ -17,7 +42,7 @@ namespace __tools {
 		std::unordered_map<std::string, std::string> tmp;
 		std::string key{};
 		std::string value{};
-		for (size_t i = 1; i < argc; i++) {
+		for (size_t i = 1; __tools::cmp_less(i, argc); i++) {
 			key = "#";
 			value = "";
 
@@ -26,7 +51,7 @@ namespace __tools {
 			else
 				value += argv[i];
 
-			for (i++; i < argc && not starts_with(argv[i], "-"); i++) {
+			for (i++; __tools::cmp_less(i, argc) && not starts_with(argv[i], "-"); i++) {
 				if (!value.empty())
 					value += " ";
 				value += argv[i];
