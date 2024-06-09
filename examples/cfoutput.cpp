@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
 
 	getoptw::args args(argc, argv);
 
-	if (args["-o"] != nullptr) {
-		std::ofstream file(args["-o"]);
+	if (!args["-o"].empty()) {
+		std::ofstream file(args["-o"].data());
 		if (file.is_open()) 
 			out_to(file, args.begin(), args.end());
 	}

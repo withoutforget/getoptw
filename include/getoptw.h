@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <unordered_map>
 #include <utility>
@@ -10,6 +11,9 @@
 #else
 #define __cplusplus_v __cplusplus
 #endif
+
+namespace getoptw {
+
 
 namespace __tools {
 #if __cplusplus_v < 202002L
@@ -63,9 +67,7 @@ namespace __tools {
 		std::swap(umap, tmp);
 	}
 }
-
-namespace getoptw {
-	class args final {
+class args final {
 	private:
 		std::unordered_map<std::string, std::string> args_map;
 	public:
@@ -76,11 +78,17 @@ namespace getoptw {
 		void push(int argc, char** argv) {
 			__tools::args_to_umap(args_map, argc, argv);
 		}
-		const char* operator[](const std::string& key) const {
+		std::string_view operator[](const std::string& key) const {
 			auto r = args_map.find(key);
 			if (r == args_map.end())
-				return nullptr;			
-			return r->second.c_str();
+				return {};			
+			return r->second;
+		}
+		std::pair<std::string_view, bool> get(const std::string& key) const {
+			auto r = args_map.find(key);
+			if (r == args_map.end())
+				return {std::string_view{}, false};
+			return {std::string_view{r->second}, true};
 		}
 		auto begin() const {
 			return args_map.begin();
